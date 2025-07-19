@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.5</version> <!-- Using a recent Spring Boot version -->
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.genaitestingforjava</groupId>
+	<artifactId>GenAITestingForJava</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>GenAITestingForJava</name>
+	<description>Sample project for AI-driven testing in Java CI/CD</description>
+
+	<properties>
+		<java.version>17</java.version> <!-- Specifying Java 17 as per modern Spring Boot practices -->
+	</properties>
+
+	<dependencies>
+		<!-- Spring Boot Starter Web: Includes Tomcat and Spring MVC -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Spring Boot Starter Test: Includes JUnit Jupiter, Mockito, Spring Test, etc. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope> <!-- This dependency is only for testing -->
+		</dependency>
+
+		<!-- Additional JUnit Jupiter API for explicit testing functionalities -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.10.2</version> <!-- Ensuring a specific JUnit Jupiter version -->
+			<scope>test</scope>
+		</dependency>
+		<!-- JUnit Jupiter Engine for running tests -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- JUnit Jupiter Params for parameterized tests (useful for AI generated tests) -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Spring Boot Maven Plugin for packaging executable JARs -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- Maven Surefire Plugin to run unit tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version> <!-- Keeping Surefire plugin up-to-date -->
+				<configuration>
+					<!-- Configure Surefire to use JUnit 5 platform -->
+					<statelessTestsetInfo>true</statelessTestsetInfo>
+				</configuration>
+			</plugin>
+			<!--
+			Conceptual Integration Point for AI Testing Tools:
+			If using a tool like Diffblue Cover, its Maven plugin would typically be configured here.
+			Example (commented out as it requires the actual plugin):
+			<plugin>
+				<groupId>com.diffblue.cover</groupId>
+				<artifactId>cover-maven-plugin</artifactId>
+				<version>2023.10.04</version>
+				<executions>
+					<execution>
+						<id>generate-tests</id>
+						<phase>generate-test-sources</phase> // Phase where tests would be generated
+						<goals>
+							<goal>generate</goal> // Goal to trigger test generation
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<target>com.genaitestingforjava.service.*</target> // Specify classes to target
+					<outputDir>${project.build.directory}/generated-test-sources/dcover</outputDir>
+					<failOnTestsGenerated>false</failOnTestsGenerated>
+				</configuration>
+			</plugin>
+			-->
+		</plugins>
+	</build>
+
+</project>
