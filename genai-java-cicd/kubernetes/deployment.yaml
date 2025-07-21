@@ -1,0 +1,53 @@
+# This Kubernetes Deployment manifest is an example of what GenAI would generate
+# for deploying the containerized Java application.
+# It infers necessary components based on the application type and desired scale.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-java-cicd-app
+  labels:
+    app: genai-java-cicd-app
+spec:
+  replicas: 2 # GenAI might suggest initial replicas based on anticipated load or user input
+  selector:
+    matchLabels:
+      app: genai-java-cicd-app
+  template:
+    metadata:
+      labels:
+        app: genai-java-cicd-app
+    spec:
+      containers:
+      - name: genai-java-cicd-app
+        # GenAI dynamically inserts the built Docker image tag here
+        image: __DOCKER_IMAGE_PLACEHOLDER__ 
+        ports:
+        - containerPort: 8080 # GenAI infers the port from the Dockerfile or application config
+        resources:
+          # GenAI can suggest resource limits and requests based on best practices
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        # GenAI can add environment variables, secret mounts, health checks etc.
+        # env:
+        #   - name: SPRING_PROFILES_ACTIVE
+        #     value: production
+        livenessProbe: # GenAI includes robust health checks
+          httpGet:
+            path: /hello # Or /actuator/health for Spring Boot Actuator
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe: # Ensures traffic is only sent to ready pods
+          httpGet:
+            path: /hello
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+      # GenAI would add imagePullSecrets if pulling from a private registry
+      imagePullSecrets:
+        - name: ghcr-login-secret # Example: Docker login secret for GitHub Container Registry
