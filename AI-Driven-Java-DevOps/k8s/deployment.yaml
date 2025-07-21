@@ -1,0 +1,68 @@
+# This Kubernetes Deployment manifest is an example of what a Generative AI
+# might produce for deploying the Java Spring Boot application.
+# It's tailored for scalability and robustness.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-driven-java-app # GenAI assigns a logical name for the deployment
+  labels:
+    app: ai-driven-java-app
+spec:
+  replicas: 2 # GenAI might suggest initial replicas for high availability
+  selector:
+    matchLabels:
+      app: ai-driven-java-app
+  template:
+    metadata:
+      labels:
+        app: ai-driven-java-app
+    spec:
+      containers:
+        - name: java-app
+          # GenAI inserts the dynamically generated image tag from the CI pipeline
+          image: my-docker-registry/ai-driven-java-app:${{ env.KUBERNETES_IMAGE_TAG }}
+          ports:
+            - containerPort: 8080 # GenAI knows the application's exposed port
+          livenessProbe:
+            httpGet:
+              path: /actuator/health # GenAI suggests Spring Boot Actuator health endpoint for liveness
+              port: 8080
+            initialDelaySeconds: 30 # GenAI accounts for application startup time
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health # GenAI suggests Spring Boot Actuator health endpoint for readiness
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            requests: # GenAI can estimate initial resource requests for performance
+              memory: "512Mi"
+              cpu: "500m"
+            limits: # GenAI can suggest limits to prevent resource exhaustion
+              memory: "1024Mi"
+              cpu: "1000m"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "production" # GenAI can set environment-specific profiles
+            - name: MY_APP_VAR
+              value: "Hello K8s"
+          # GenAI can suggest volume mounts for persistent storage or config maps
+          # volumeMounts:
+          #   - name: app-config
+          #     mountPath: /app/config
+      # GenAI can suggest adding imagePullSecrets if using private registries
+      # imagePullSecrets:
+      #   - name: regcred
+      # GenAI can add affinity/anti-affinity rules for better scheduling
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       - labelSelector:
+      #           matchExpressions:
+      #             - key: app
+      #               operator: In
+      #               values:
+      #                 - ai-driven-java-app
+      #         topologyKey: "kubernetes.io/hostname"
