@@ -1,0 +1,112 @@
+# GenAI intelligently generates comprehensive CI/CD pipelines like this GitHub Actions workflow.
+
+name: GenAI Java CI/CD Pipeline
+
+# GenAI determines pipeline triggers based on common DevOps practices or user prompts.
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+  pull_request:
+    branches:
+      - main # Trigger on pull requests to the main branch
+
+env:
+  # GenAI suggests and manages environment variables for build and deployment.
+  DOCKER_IMAGE_NAME: genai-java-app
+  DOCKER_REGISTRY: ghcr.io/${{ github.repository_owner }} # Using GitHub Container Registry as an example
+  KUBERNETES_CLUSTER_NAME: your-k8s-cluster # Placeholder: GenAI would configure specific cluster details.
+  KUBERNETES_CONTEXT: your-k8s-context # Placeholder: GenAI would configure specific K8s context.
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # GenAI selects appropriate runner environment.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Standard action to check out the repository.
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4 # GenAI automatically configures the Java environment.
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven # GenAI recommends caching dependencies for faster builds.
+
+      - name: Build with Maven
+        run: mvn clean install -B -DskipTests # GenAI understands Maven commands for building.
+
+      - name: Run Unit Tests
+        run: mvn test -B # GenAI includes a dedicated step for running tests.
+
+      - name: Set up SonarQube Scanner
+        uses: SonarSource/sonarcloud-github-action@master # GenAI integrates SAST tools.
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # GenAI prompts for or uses secret management.
+
+      - name: Analyze with SonarQube
+        run: mvn sonar:sonar -Dsonar.projectKey=genai-devops-java-app -Dsonar.organization=your-organization-key # GenAI configures SonarQube project details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+
+  docker-build-and-push:
+    needs: build-and-test # GenAI establishes dependencies between pipeline stages.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3 # GenAI includes steps for authenticating with container registries.
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for GHCR
+
+      - name: Build Docker Image
+        # GenAI generates the Docker build command, including dynamic tagging.
+        run: docker build -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest .
+
+      - name: Push Docker Image
+        # GenAI ensures images are pushed to the correct registry with appropriate tags.
+        run: |
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+
+  deploy-to-kubernetes:
+    needs: docker-build-and-push # GenAI ensures deployment happens only after successful build and push.
+    runs-on: ubuntu-latest
+    environment: production # GenAI can manage deployments to specific environments.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Kubeconfig
+        # GenAI automatically generates steps for Kubeconfig setup, referencing secrets.
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+          # Set the Kubernetes context to ensure deployment to the correct cluster.
+          kubectl config use-context ${{ env.KUBERNETES_CONTEXT }}
+        env:
+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }} # Base64 encoded Kubeconfig content
+
+      - name: Update Kubernetes Deployment Image
+        # GenAI generates `kubectl set image` command for efficient image updates.
+        run: |
+          kubectl set image deployment/genai-java-app-deployment genai-java-app=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} -n default
+        # Replace 'default' with your namespace if applicable, GenAI would infer this.
+
+      - name: Verify Deployment Rollout
+        # GenAI adds steps to ensure successful deployment rollout and readiness.
+        run: kubectl rollout status deployment/genai-java-app-deployment -n default
+
+      - name: Apply Kubernetes Service (if not exists or modified)
+        # GenAI ensures service definitions are applied, handles idempotency.
+        run: kubectl apply -f kubernetes/service.yaml -n default
+
+      - name: Get Service URL
+        # GenAI can provide commands to retrieve deployment information for verification.
+        run: |
+          echo "Application deployed. Service IP/hostname:"
+          kubectl get service genai-java-app-service -n default
