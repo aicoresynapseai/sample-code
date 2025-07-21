@@ -1,0 +1,124 @@
+# This GitHub Actions workflow is an example of what a Generative AI
+# would produce based on a prompt like:
+# "Generate a CI/CD pipeline for a Java Spring Boot app, Maven build,
+# unit tests, SonarQube scan, Dockerize, push to Docker Hub, deploy to Kubernetes."
+
+name: Java CI/CD Pipeline (GenAI Generated)
+
+on:
+  push:
+    branches: [ "main" ] # GenAI infers main branch for deployments
+  pull_request:
+    branches: [ "main" ] # GenAI ensures CI for PRs
+
+env:
+  JAVA_VERSION: '17' # GenAI detects Java version from pom.xml or suggests latest LTS
+  BUILD_TOOL: 'maven' # GenAI detects Maven from pom.xml
+  DOCKER_IMAGE_NAME: 'genai-cicd-java-app' # GenAI derives image name from project name
+  DOCKER_REGISTRY: 'docker.io' # GenAI assumes Docker Hub or allows user to specify
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # GenAI selects a suitable runner environment
+
+    steps:
+    - name: Checkout code # Standard step, GenAI includes it by default
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }} # GenAI configures Java based on detected version
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin' # GenAI suggests popular distributions
+        cache: ${{ env.BUILD_TOOL }} # GenAI enables caching for faster builds
+
+    - name: Build with Maven # GenAI generates Maven build command
+      run: mvn -B package --file pom.xml -DskipTests # Skip tests here to run them in a separate step
+
+    - name: Run Unit Tests # GenAI creates a dedicated step for testing
+      run: mvn test --file pom.xml
+
+    - name: SonarQube Scan (Simulated) # GenAI integrates security analysis tools
+      # In a real scenario, GenAI would generate `mvn sonar:sonar` with properties
+      # and ensure SONAR_TOKEN secret is configured.
+      run: echo "Simulating SonarQube scan for code quality and security..."
+      # For a real SonarQube integration, add:
+      # - name: SonarQube Scan
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   with:
+      #     projectBaseDir: .
+
+    - name: Upload JAR artifact # GenAI ensures build artifacts are saved
+      uses: actions/upload-artifact@v4
+      with:
+        name: java-app-jar
+        path: target/*.jar
+
+  docker-build-and-push:
+    needs: build-and-test # GenAI ensures build is complete before containerization
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # GenAI typically pushes images on main branch merges
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download JAR artifact # GenAI pulls the artifact from previous job
+      uses: actions/download-artifact@v4
+      with:
+        name: java-app-jar
+        path: target/
+
+    - name: Log in to Docker Hub # GenAI generates login steps for chosen registry
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }} # GenAI mandates use of secrets
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract metadata for Docker # GenAI helps manage image tags (e.g., semantic versioning)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}
+        tags: |
+          type=sha,format=long,prefix=
+          type=ref,event=branch
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+    - name: Build and Push Docker image # GenAI leverages optimized buildx action
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        file: Dockerfile # GenAI explicitly references the generated Dockerfile
+
+  deploy-to-kubernetes:
+    needs: docker-build-and-push # GenAI ensures image is pushed before deployment
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # GenAI restricts deployment to main branch for production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Kubeconfig # GenAI knows how to configure Kubernetes access securely
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config # Kubeconfig loaded from secrets
+        chmod 600 ~/.kube/config
+
+    - name: Deploy to Kubernetes # GenAI generates kubectl commands for deployment
+      run: |
+        # GenAI would apply the generated Kubernetes YAMLs
+        # It would also handle environment variable injection, secret mounting, etc.
+        kubectl apply -f k8s/deployment.yaml -n default
+        kubectl apply -f k8s/service.yaml -n default
+        kubectl rollout status deployment/${{ env.DOCKER_IMAGE_NAME }}-deployment -n default
+      env:
+        # Example: GenAI could inject environment variables or secrets specific to deployment
+        IMAGE_TAG: ${{ steps.docker_build_and_push.outputs.tags }}
