@@ -1,0 +1,54 @@
+# This Kubernetes Deployment manifest is an example of what a Generative AI
+# would produce for deploying a containerized Java Spring Boot application.
+# GenAI considers replicas, resource limits, and environment variables.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-cicd-java-app-deployment # GenAI derives names from project and application
+  labels:
+    app: genai-cicd-java-app
+spec:
+  replicas: 2 # GenAI suggests initial replica count for high availability
+  selector:
+    matchLabels:
+      app: genai-cicd-java-app
+  template:
+    metadata:
+      labels:
+        app: genai-cicd-java-app
+    spec:
+      containers:
+      - name: genai-cicd-java-app # Container name matches app name
+        image: docker.io/${{ github.repository_owner }}/genai-cicd-java-app:latest # GenAI injects the correct image and tag
+        ports:
+        - containerPort: 8080 # GenAI knows the application port
+        resources: # GenAI suggests sensible resource limits for production readiness
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe: # GenAI includes health probes for robust deployments
+          httpGet:
+            path: /hello # Assuming /hello is a health check endpoint or simple endpoint
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe: # GenAI adds readiness probes to ensure traffic only goes to ready instances
+          httpGet:
+            path: /hello
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        env: # GenAI can add environment variables, e.g., for Spring profiles
+        - name: SPRING_PROFILES_ACTIVE
+          value: production # GenAI sets appropriate environment for deployment target
+        # - name: DB_URL # GenAI would dynamically add database connection details
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: app-secrets # Assuming GenAI generates this secret
+        #       key: db-url
+      imagePullSecrets: # GenAI suggests image pull secrets for private registries
+      - name: regcred # This secret needs to be created manually in K8s (kubectl create secret docker-registry regcred ...)
