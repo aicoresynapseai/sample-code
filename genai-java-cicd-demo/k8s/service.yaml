@@ -1,0 +1,19 @@
+# This Kubernetes Service manifest is an example of what a Generative AI
+# would produce to expose the Java application within the cluster.
+# GenAI selects appropriate service types based on deployment context.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-cicd-java-app-service # GenAI generates a consistent service name
+  labels:
+    app: genai-cicd-java-app
+spec:
+  selector:
+    app: genai-cicd-java-app # Matches the labels of the deployment
+  ports:
+    - protocol: TCP
+      port: 80 # External port, GenAI would suggest 80 or 443 for web apps
+      targetPort: 8080 # Internal container port
+  type: LoadBalancer # GenAI suggests LoadBalancer for external access on cloud platforms
+  # For on-prem or internal access, GenAI might suggest ClusterIP or NodePort
