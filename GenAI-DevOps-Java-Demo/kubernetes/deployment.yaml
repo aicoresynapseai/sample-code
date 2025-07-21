@@ -1,0 +1,45 @@
+# GenAI generates optimized Kubernetes deployment configurations for your Java app.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-java-app-deployment
+  labels:
+    app: genai-java-app
+spec:
+  replicas: 2 # GenAI can suggest optimal replica counts based on expected load or environment.
+  selector:
+    matchLabels:
+      app: genai-java-app
+  template:
+    metadata:
+      labels:
+        app: genai-java-app
+    spec:
+      containers:
+        - name: genai-java-app
+          image: YOUR_DOCKER_REGISTRY/genai-java-app:latest # Placeholder: GenAI would insert the actual image name and tag.
+          ports:
+            - containerPort: 8080 # GenAI infers the application port from the Dockerfile/app config.
+          resources:
+            requests:
+              memory: "512Mi" # GenAI recommends sensible resource requests for Java applications.
+              cpu: "500m"
+            limits:
+              memory: "1Gi"   # GenAI suggests resource limits to prevent resource exhaustion.
+              cpu: "1"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod" # GenAI can manage environment-specific configurations.
+          livenessProbe: # GenAI includes health probes for robust deployments.
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe: # GenAI includes readiness probes to ensure the app is ready to serve traffic.
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
