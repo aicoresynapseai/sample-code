@@ -1,0 +1,12 @@
+feat: Implement user dashboard with recent activity
+feat: Add Multi-Factor Authentication (MFA) to login process
+fix: Resolve search filter issue with date ranges
+perf: Optimize database queries for reporting module
+refactor: Clean up old authentication service endpoints
+feat: Introduce dark mode theme for UI
+fix: Fix concurrency bug in order processing
+chore: Update Lombok dependency to 1.18.30
+docs: Update README with new API endpoints
+fix: UI glitch on mobile navigation bar
+perf: Improve API error handling and logging
+refactor: Streamline password reset flow
